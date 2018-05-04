@@ -154,7 +154,7 @@ if __name__ == '__main__':
     SERVO = Servo(gate)
     pinmode(A)
     init(A, SERVO)
-    navigate(A, 0)
+    navigate(A, 5)
     dispense(A, SERVO)
     # for cyl in range(6):
     #     print(cyl + 1)
