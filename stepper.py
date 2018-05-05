@@ -19,13 +19,14 @@ ms1 = 9
 ms2 = 10
 ms3 = 12
 gate = 13
-# PIN 1 broken
+# PINS 1 and 11 broken
 
 FULL_ROTATION = 200
 STEP_DELAY = 0.001
-GATE_OPEN = 120
-GATE_CLOSED = 140
-
+GATE_OPEN = 137
+GATE_CLOSED = 155
+PILL_DETECT = 35
+SHAKE_DEL = 0.01
 
 def step_mode():
     pass
@@ -57,9 +58,10 @@ def shake(a, iterations):
     toggle(a)
     for i in range(iterations):
         translate(a, True, 1)
-        time.sleep(0.01)
+        time.sleep(SHAKE_DEL)
         translate(a, False, 1)
-        time.sleep(0.01)
+        time.sleep(SHAKE_DEL)
+    translate(a, True, 1)
     toggle(a)
 
 
@@ -74,20 +76,22 @@ def open_gate(servo):
 def dispense(a, servo):
     try:
         open_gate(servo)
-        time.sleep(0.05)
-        shake(a, 12)
+	time.sleep(0.05)
+	shake(a, 12)
         close_gate(servo)
         stime = time.time()
         a.digitalWrite(disp_pin, a.HIGH)
         print("DISPENSING")
         photocell_reading = sum([a.analogRead(photocell) for x in range(3)]) / 3
         new_reading = photocell_reading
-        while(abs(photocell_reading - new_reading) < 50):
+	numshakes = 14
+        while(abs(photocell_reading - new_reading) < PILL_DETECT):
             if abs(time.time() - stime) > 5:
                 a.digitalWrite(disp_pin, a.LOW)
                 open_gate(servo)
                 time.sleep(0.05)
-                shake(a, 21)
+                shake(a, numshakes)
+		numshakes += 7
                 close_gate(servo)
                 time.sleep(0.05)
                 a.digitalWrite(disp_pin, a.HIGH)
@@ -119,6 +123,7 @@ def navigate(a, cylinder):
     reset_home(a)
     for cyl in range(cylinder):
         translate(a, False, 200 / 6)
+    # translate(A, False, 7)
     toggle(a)
 
 
@@ -154,8 +159,10 @@ if __name__ == '__main__':
     SERVO = Servo(gate)
     pinmode(A)
     init(A, SERVO)
-    navigate(A, 5)
+    # navigate(A, 2)
+    navigate(A, 3)
     dispense(A, SERVO)
+    A.digitalWrite(sleep, A.LOW)
     # for cyl in range(6):
     #     print(cyl + 1)
     #     navigate(A, cyl)
