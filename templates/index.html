@@ -1,127 +1,127 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="https://bootswatch.com/4/cosmo/bootstrap.css" media="screen">
-  <link rel="stylesheet" href="https://bootswatch.com/_assets/css/custom.min.css">
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>window.jQuery || document.write('<script src="{{
-    url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
-
+	<link rel="stylesheet" href="https://bootswatch.com/4/cosmo/bootstrap.css" media="screen">
+	<link rel="stylesheet" href="https://bootswatch.com/_assets/css/custom.min.css">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
 
 <body>
-  <script type=text/javascript>
-    var table_headers = "<tr><td>Cylinder Number</td><td>Medication Name</td><td>Dosage per Day</td><td>Hours between Dosage</td><td>Controls</td>";
-    $(function () {
-      $.ajax({
-        type: "GET",
-        url: '/api/v1/medications',
-        success: function (medications){
-          // console.log(medications);
-          var table = "<table class='table'>" + table_headers +"</tr>";
-          var table_end = "</table>";
-          var body = "";
-          console.log(Object.keys(medications["cylinders"]));
-          Object.keys(medications["cylinders"]).forEach(function(key) {
-            console.log(key, JSON.stringify(medications["cylinders"][key]));
-            var cylinder = medications["cylinders"][key];
-            var cylinder_number = key;
-            var name = cylinder['name'];
-            var pills = cylinder['pills'];
-            var hours = cylinder['hours'];
+	<script type=text/javascript>
+		var table_headers = "<tr><td>Cylinder Number</td><td>Medication Name</td><td>Dosage per Day</td><td>Hours between Dosage</td><td>Controls</td>";
+		$(function() {
+			$.ajax({
+				type: "GET",
+				url: '/api/v1/medications',
+				success: function(medications) {
+					// console.log(medications);
+					var table = "<table class='table'>" + table_headers + "</tr>";
+					var table_end = "</table>";
+					var body = "";
+					console.log(Object.keys(medications["cylinders"]));
+					Object.keys(medications["cylinders"]).forEach(function(key) {
+						console.log(key, JSON.stringify(medications["cylinders"][key]));
+						var cylinder = medications["cylinders"][key];
+						var cylinder_number = key;
+						var name = cylinder['name'];
+						var pills = cylinder['pills'];
+						var hours = cylinder['hours'];
+						body += "<tr>" + "<td>" + cylinder_number + "</td>" +
+							"<td>" + name + "</td>" +
+							"<td>" + pills + "</td>" +
+							"<td>" + hours + "</td>" +
+							"<td>" + 'delete' + "</td>" +
+							"</tr>";
+					});
 
+					$("#result").html(table + body + table_end);
+				}
+			});
+		});
+		$(function() {
+			$('button#calculate').bind('click', function() {
+				var data = {
+					name: $('input[name="name"]').val(),
+					pills: $('input[name="pills"]').val(),
+					hours: $('input[name="hours"]').val(),
+					cylinder_number: $('input[name="cylinder_number"]').val()
+				}
+				$.ajax({
+					type: "POST",
+					url: '/api/v1/medication',
+					data: JSON.stringify(data),
+					contentType: "application/json",
+					dataType: "json",
+					success: function(response) {
+						$.ajax({
+							type: "GET",
+							url: '/api/v1/medications',
+							success: function(medications) {
+								// console.log(medications);
+								var table = "<table class='table'>" + table_headers;
+								var table_end = "</table>";
+								var body = "";
+								console.log(Object.keys(medications["cylinders"]));
+								Object.keys(medications["cylinders"]).forEach(function(key) {
+									console.log(key, JSON.stringify(medications["cylinders"][key]));
+									var cylinder = medications["cylinders"][key];
+									var cylinder_number = key;
+									var name = cylinder['name'];
+									var pills = cylinder['pills'];
+									var hours = cylinder['hours'];
+									body += "<tr>" + "<td>" + cylinder_number + "</td>" +
+										"<td>" + name + "</td>" +
+										"<td>" + pills + "</td>" +
+										"<td>" + hours + "</td>" +
+										"<td>" + 'delete' + "</td>" +
+										"</tr>";
+								});
 
-            body += "<tr>" + "<td>"+ cylinder_number + "</td>" +
-            "<td>" + name + "</td>" +
-            "<td>" + pills + "</td>" +
-            "<td>" + hours + "</td>" +
-            "<td>" + 'delete' + "</td>" +
-            "</tr>";
-          });
-
-          $("#result").html(table + body + table_end);
-        }
-      });
-    });
-    $(function() {
-      $('button#calculate').bind('click', function() {
-        var data = {
-          name: $('input[name="name"]').val(),
-          pills: $('input[name="pills"]').val(),
-          hours: $('input[name="hours"]').val(),
-          cylinder_number: $('input[name="cylinder_number"]').val()
-        }
-        $.ajax({
-          type: "POST",
-          url: '/api/v1/medication',
-          data: JSON.stringify(data),
-          contentType: "application/json",
-          dataType: "json",
-          success: function (response){
-            $.ajax({
-              type: "GET",
-              url: '/api/v1/medications',
-              success: function (medications){
-                // console.log(medications);
-                var table = "<table class='table'>" + table_headers;
-                var table_end = "</table>";
-                var body = "";
-                console.log(Object.keys(medications["cylinders"]));
-                Object.keys(medications["cylinders"]).forEach(function(key) {
-                  console.log(key, JSON.stringify(medications["cylinders"][key]));
-                  var cylinder = medications["cylinders"][key];
-                  var cylinder_number = key;
-                  var name = cylinder['name'];
-                  var pills = cylinder['pills'];
-                  var hours = cylinder['hours'];
-
-
-                  body += "<tr>" + "<td>"+ cylinder_number + "</td>" +
-                  "<td>" + name + "</td>" +
-                  "<td>" + pills + "</td>" +
-                  "<td>" + hours + "</td>" +
-                  "<td>" + 'delete' + "</td>" +
-                  "</tr>";
-                });
-
-                $("#result").html(table + body + table_end);
-              }
-            });
-          }
-        });
-      });
-    });
-  </script>
-  <div class="container">
-  <h1>Pillar Web Controller</h1>
-    <form>
-      <div class="form-group">
-        <label for="exampleInputEmail1">Name: </label>
-        <input type="email" class="form-control" name=name placeholder="Enter Medication Name">
-      </div>
-      <div class="form-group">
-        <label for="exampleInputEmail1">Pills: </label>
-        <input type="email" class="form-control" name=pills placeholder="Enter Number of Pills">
-      </div>
-      <div class="form-group">
-        <label for="exampleInputEmail1">Hours: </label>
-        <input type="email" class="form-control" name=hours placeholder="Enter Hours">
-      </div>
-      <div class="form-group">
-        <label for="exampleInputEmail1">Cylinder Number: </label>
-        <input type="email" class="form-control" name=cylinder_number placeholder="Enter cylinder number">
-      </div>
-    </form>
-    <p><button type="button" class="btn btn-primary" href=# id=calculate>Add Pill</button>
-      <br>
-      <br>
-      <br>
-      <div id="result"></div>
-    </div>
-    <script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
-    <script src="https://bootswatch.com/_vendor/popper.js/dist/umd/popper.min.js"></script>
-    <script src="https://bootswatch.com/_vendor/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="https://bootswatch.com/_assets/js/custom.js"></script>
+								$("#result").html(table + body + table_end);
+							}
+						});
+					}
+				});
+			});
+		});
+	</script>
+	<div class="container">
+		<h1>Pillar Web Controller</h1>
+		<form>
+			<div class="form-group">
+				<label for="name">Name: </label>
+				<input type="text" class="form-control" name=name placeholder="Enter Medication Name">
+			</div>
+			<div class="form-group">
+				<label for="pills">Number of Pills: </label>
+				<input type="number" class="form-control" name=pills placeholder="Enter Number of Pills">
+			</div>
+			<div class="form-group">
+				<label for="exampleInputEmail1">Hours: </label>
+				<input type="email" class="form-control" name=hours placeholder="Enter Hours">
+			</div>
+			<div class="form-group">
+				<label for="cylinder">Cylinder Number: </label>
+				<select class="form-control">
+                     <option value=1>1</option>
+                     <option value=2>2</option>
+                     <option value=3>3</option>
+                     <option value=4>4</option>
+                     <option value=5>5</option>
+                     <option value=6>6</option>
+                </select>
+			</div>
+		</form>
+		<button type="button" class="btn btn-primary" href=# id=calculate>Add Pill</button>
+		<br>
+		<br>
+		<br>
+		<div id="result"></div>
+	</div>
+	<script src="https://bootswatch.com/_vendor/jquery/dist/jquery.min.js"></script>
+	<script src="https://bootswatch.com/_vendor/popper.js/dist/umd/popper.min.js"></script>
+	<script src="https://bootswatch.com/_vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="https://bootswatch.com/_assets/js/custom.js"></script>
 </body>
 
 </html>
