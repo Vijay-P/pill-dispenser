@@ -4,8 +4,7 @@
 import time
 import sched
 from datetime import datetime
-from Queue import Queue
-from multiprocessing import Process
+
 # External pakages
 from nanpy import SerialManager, ArduinoApi, Servo
 
@@ -15,7 +14,7 @@ STEP_DELAY = 0.001
 GATE_OPEN = 132
 GATE_CLOSED = 149
 PILL_DETECT = 30
-SHAKE_DEL = 0.01
+SHAKE_DEL = 0.02
 SLEEP_TIME = 0.05
 
 # ARDUINO PINS
@@ -34,9 +33,9 @@ PINS = {
     'gate': 13
 }
 
-CONNECTION = SerialManager(device='/dev/ttyUSB0')
-A = ArduinoApi(connection=CONNECTION)
-SERVO = Servo(PINS['gate'])
+# CONNECTION = SerialManager(device='/dev/ttyUSB0')
+# A = ArduinoApi(connection=CONNECTION)
+# SERVO = Servo(PINS['gate'])
 JOBS = []
 SCHED = sched.scheduler(time.time, time.sleep)
 
@@ -65,9 +64,9 @@ def translate(a, ccw, steps):
 
 def shake(a, iterations):
     for _ in range(iterations):
-        translate(a, True, 3)
+        translate(a, True, 1)
         time.sleep(SHAKE_DEL)
-        translate(a, False, 3)
+        translate(a, False, 1)
         time.sleep(SHAKE_DEL)
     # translate(a, True, 2)
 
@@ -184,14 +183,18 @@ def init(a, servo):
     close_gate(servo)
 
 
+def printest(a, b, c, d):
+    print("DISPENSING ", d, " pills from cylinder ", c)
+
+
 def create_job(a, servo, hour, minute, cylinder, number):
     currtime = datetime.now()
     medtime = currtime.replace(hour=hour, minute=minute, second=0)
     diff = time.mktime(medtime.timetuple()) - time.time()
     if(diff > 0):
         print("Job in ", diff)
-        SCHED.enter(diff, 1, dispense, (a, servo, cylinder, number))
-        SCHED.run()
+        # SCHED.enter(diff, 1, dispense, (a, servo, cylinder, number))
+        SCHED.enter(diff, 1, printest, (a, servo, cylinder, number))
     # else:
     #     try:
     #         medtime2 = medtime.replace(day=medtime.day + 1)
@@ -210,43 +213,51 @@ def reloadJobs():
     reloadtime = currtime.replace(day=currtime.day + 1, hour=0, minute=0, second=0)
     diff = time.mktime(reloadtime.timetuple()) - time.time()
     SCHED.enter(diff, 1, reloadJobs, ())
-    SCHED.run()
 
 
 def mainthread(inqueue):
-    pinmode(A)
-    init(A, SERVO)
+    global JOBS
+    # pinmode(A)
+    # init(A, SERVO)
     # reloadjobs at midnight
     currtime = datetime.now()
     reloadtime = currtime.replace(day=currtime.day + 1, hour=0, minute=0, second=0)
     diff = time.mktime(reloadtime.timetuple()) - time.time()
     SCHED.enter(diff, 1, reloadJobs, ())
-    SCHED.run()
     while 1:
         try:
-            newjobs = inqueue.get()
-            assert isinstance(newjobs, tuple)
-            JOBS = []
-            for x in newjobs:
-                assert len(newjobs[x] == 4)
-                #hour, minute, cylinder, number
-                JOBS.append(newjobs[x])
-                create_job(A, SERVO, newjobs[0], newjobs[1], newjobs[2], newjobs[3])
+            if inqueue.qsize() != 0:
+                SCHED.run(False)
+                newjobs = inqueue.get()
+                assert isinstance(newjobs, tuple)
+                assert len(newjobs) == 6
+                JOBS = []
+                for job in newjobs:
+                    assert len(job) == 4
+                    #hour, minute, cylinder, number
+                    JOBS.append(job)
+                    create_job("A", "SERVO", *job)
+            else:
+                SCHED.run(False)
         except AssertionError:
             break
     A.digitalWrite(PINS['sleep'], A.LOW)
 
 if __name__ == '__main__':
+    pass
     # Nanpy Setup
     # CONNECTION = SerialManager(device='/dev/ttyUSB0')
     # A = ArduinoApi(connection=CONNECTION)
     # SERVO = Servo(PINS['gate'])
     # pinmode(A)
     # init(A, SERVO)
-    # # toggle(A)
-    # # shake(A, 100)
-    # # toggle(A)
+    # toggle(A)
+    # reset_home(A)
+    # shake(A, 5)
+    # toggle(A)
+    # shake(A, 6)
+    # toggle(A)
     # dispense(A, SERVO, 0)
-    inputq = Queue()
-    p = Process(target=mainthread, args=(inputq))
-    p.start()
+    # inputq = Queue()
+    # p = Process(target=mainthread, args=(inputq))
+    # p.start()
