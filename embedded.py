@@ -194,6 +194,8 @@ def printest(a, b, c, d):
 
 
 def create_job(a, servo, hour, minute, cylinder, number):
+    print("CREATING JOB FOR", hour, minute, "in cylinder", cylinder)
+    print(number, "pills")
     currtime = datetime.now()
     medtime = currtime.replace(hour=hour, minute=minute, second=0)
     diff = time.mktime(medtime.timetuple()) - time.time()
