@@ -126,4 +126,4 @@ def create_medication():
     return jsonify({'cylinders': cylinders}), 201
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8080)
