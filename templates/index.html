@@ -64,9 +64,9 @@
 				}
 
 				var minZone = tmpHours.split(":")[1];
-				var key = cylinder_number + "+" + tmpHours + "+" + pillName;
+				var key = cylinder_number + "+" + tmpHours;
 
-				var newEntry = [true_hours, parseInt(minZone.substring(0, minZone.length-2)), cylinder_number,parseInt($('input[name="pills"]').val())];
+				var newEntry = [true_hours, parseInt(minZone.substring(0, minZone.length-2)), cylinder_number,parseInt($('input[name="pills"]').val()), pillName];
 				data_table.push(newEntry);
 				data_map[key] = newEntry;
 
@@ -102,7 +102,7 @@
 
 										var cylinder_number = parseInt(key.split("+")[0]) + 1;
 										var dosageTime = key.split("+")[1];
-										var name = key.split("+")[2];
+										var name = value[4];
 										var pills = value[3];
 
 										body += "<tr>" + "<td>" + cylinder_number + "</td>" +

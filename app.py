@@ -68,7 +68,7 @@ def create_medication():
 
     tmpList = []
     for e in request.json:
-        tmpList.append(tuple(e))
+        tmpList.append(tuple(e[0:4]))
 
     updatetuple = (tuple(tmpList))
     # INPUTQ.put(updatetuple)
