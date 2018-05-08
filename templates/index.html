@@ -59,7 +59,7 @@
 				var pillName = $('input[name="name"]').val();
 				var tmpHours = $('input[name="hours"]').val();
 				var true_hours = parseInt($('input[name="hours"]').val().split(":")[0]);
-				if (tmpHours.substring(tmpHours.length-2, tmpHours.length)) {
+				if (tmpHours.substring(tmpHours.length-2, tmpHours.length) == 'pm') {
 					true_hours += 2;
 				}
 
