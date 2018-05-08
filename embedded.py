@@ -232,7 +232,7 @@ def mainthread(inqueue):
                 SCHED.run(False)
                 newjobs = inqueue.get()
                 assert isinstance(newjobs, tuple)
-                assert len(newjobs) == 6
+                assert len(newjobs) >= 6
                 JOBS = []
                 for job in newjobs:
                     assert len(job) == 4

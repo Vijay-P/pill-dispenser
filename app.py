@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 from flask import Flask, jsonify, make_response, abort, render_template, request
 from multiprocessing import Process, Queue
-
 import embedded
 import time
+from dateutil import parser
 
 app = Flask(__name__)
 
@@ -23,16 +23,18 @@ PP.start()
 
 @app.route('/')
 def index():
-    updatetuple = (
-        (
-            (16, 4, 0, 0),
-            (21, 12, 0, 1),
-            (16, 4, 0, 2),
-            (16, 4, 0, 3),
-            (16, 4, 0, 4),
-            (16, 4, 0, 5)
-        )
-    )
+
+
+    # updatetuple = (
+    #     (
+    #         (16, 4, 0, 0),
+    #         (21, 12, 0, 1),
+    #         (16, 4, 0, 2),
+    #         (16, 4, 0, 3),
+    #         (16, 4, 0, 4),
+    #         (16, 4, 0, 5)
+    #     )
+    # )
     # INPUTQ.close()
     # INPUTQ.join_thread()
     print(embedded.mainthread)
@@ -75,11 +77,13 @@ def create_medication():
     # print(INPUTQ)
     # if not request.json or not 'title' in request.json:
     #     abort(400)
+    hoursText = request.json['hours']
+    dt = parser.parse(hoursText)
     cylinders[str(int(request.json['cylinder_number']) % 6)] = {  # Mod it by 6
         # 'id': tasks[-1]['id'] + 1,
         'name': request.json['name'],
         'pills': int(request.json['pills']),
-        'hours': int(request.json['hours']),
+        'hours': request.json['hours'],
     }
     return jsonify({'cylinders': cylinders}), 201
 

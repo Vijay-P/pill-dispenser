@@ -11,7 +11,10 @@ if __name__ == '__main__':
     # NOTE Must update all 6 cylinders at once. !!!!!!!!!!
     # Time is in 24 hour format.
     # Cylinders are numbered [0-5]
+    # "number" is number of pills to take
     #Format: ((hour, minute, cylinder, number), (hour, minute, cylinder, number), ...)
+    # There should be a minimum of 6 tuples
+    # If a dosage is more than 1 time (period?) per day, add a new tuple
     updatetuple = (
         (
             (16, 4, 0, 0),
