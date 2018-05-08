@@ -8,7 +8,11 @@
 
 <body>
 	<script type=text/javascript>
+
+		var data_table = [];
+		var data_map = {};
 		var table_headers = "<tr><td>Cylinder Number</td><td>Medication Name</td><td>Dosages</td><td>Time of Dosage</td><td>Controls</td>";
+
 		$(function() {
 			$.ajax({
 				type: "GET",
@@ -39,8 +43,6 @@
 			});
 		});
 		$(function() {
-
-
 			function getCylinderIndex() {
 			  return $("#cylinderNum")[0].selectedIndex;
 			}
@@ -53,10 +55,33 @@
 					// cylinder_number: $('input[name="cylinder_number"]').val()
 					cylinder_number: getCylinderIndex(),
 				}
+
+				var tmpHours = $('input[name="hours"]').val();
+				var true_hours = parseInt($('input[name="hours"]').val().split(":")[0]);
+				if (tmpHours.substring(tmpHours.length-2, tmpHours.length)) {
+					true_hours += 2;
+				}
+
+				var minZone = tmpHours.split(":")[1];
+				var key = cylinder_number + "+" + tmpHours;
+
+				var newEntry = [true_hours, minZone.substring(0, minZone.length-2), cylinder_number,parseInt($('input[name="pills"]').val())];
+				data_table.push(newEntry);
+				data_map[key] = newEntry;
+
+				data_table = [];
+
+				var value;
+				Object.keys(data_map).forEach(function(key) {
+				    value = data_map[key];
+						data_table.push(value)
+				});
+
 				$.ajax({
 					type: "POST",
 					url: '/api/v1/medication',
-					data: JSON.stringify(data),
+					// data: JSON.stringify(data),
+					data: JSON.stringify(data_table),
 					contentType: "application/json",
 					dataType: "json",
 					success: function(response) {
