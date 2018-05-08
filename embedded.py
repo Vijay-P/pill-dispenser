@@ -37,6 +37,9 @@ PINS = {
     'gate': 13
 }
 
+CONNECTION = SerialManager(device='/dev/ttyUSB0')
+A = ArduinoApi(connection=CONNECTION)
+SERVO = Servo(PINS['gate'])
 JOBS = []
 SCHED = sched.scheduler(time.time, time.sleep)
 
@@ -226,9 +229,6 @@ def reloadJobs():
 def mainthread(inqueue):
     print('threadstart')
     global JOBS
-    CONNECTION = SerialManager(device='/dev/ttyUSB0')
-    A = ArduinoApi(connection=CONNECTION)
-    SERVO = Servo(PINS['gate'])
     pinmode(A)
     init(A, SERVO)
     # reloadjobs at midnight

@@ -17,30 +17,7 @@ if __name__ == '__main__':
     # If a dosage is more than 1 time (period?) per day, add a new tuple
     updatetuple = (
         (
-            (16, 4, 0, 0),
-            (21, 12, 0, 1),
-            (16, 4, 0, 2),
-            (16, 4, 0, 3),
-            (16, 4, 0, 4),
-            (16, 4, 0, 5)
-        )
-    )
-    inputq.put(updatetuple)
-
-    print ("Start : %s" % time.ctime())
-    time.sleep( 5 )
-    print ("End : %s" % time.ctime())
-
-    # key should be cylinder + time
-
-    updatetuple = (
-        (
-            (16, 4, 0, 0),
-            (22, 0, 0, 1),
-            (16, 4, 0, 2),
-            (16, 4, 0, 3),
-            (16, 4, 0, 4),
-            (16, 4, 0, 5)
+            (3, 42, 0, 1),
         )
     )
 
