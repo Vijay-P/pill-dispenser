@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 from multiprocessing import Process, Queue
-
 import embedded
 import time
+
 
 if __name__ == '__main__':
     inputq = Queue()
@@ -17,7 +17,7 @@ if __name__ == '__main__':
     # If a dosage is more than 1 time (period?) per day, add a new tuple
     updatetuple = (
         (
-            (3, 42, 0, 1),
+            (4, 9, 0, 1),
         )
     )
 

@@ -257,21 +257,21 @@ def mainthread(inqueue):
             break
     A.digitalWrite(PINS['sleep'], A.LOW)
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
     # pass
     # Nanpy Setup
     # CONNECTION = SerialManager(device='/dev/ttyUSB0')
     # A = ArduinoApi(connection=CONNECTION)
     # SERVO = Servo(PINS['gate'])
-    # pinmode(A)
-    # init(A, SERVO)
+    pinmode(A)
+    init(A, SERVO)
     # open_gate(SERVO)
     # toggle(A)
     # for x in range(6):
     #     navigate(A, x)
     #     time.sleep(3)
     # toggle(A)
-    # dispense(A, SERVO, 0)
+    dispense(A, SERVO, 0)
     # inputq = Queue()
     # p = Process(target=mainthread, args=(inputq))
     # p.start()
