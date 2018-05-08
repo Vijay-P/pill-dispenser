@@ -39,12 +39,19 @@
 			});
 		});
 		$(function() {
+
+
+			function getCylinderIndex() {
+			  return $("#cylinderNum")[0].selectedIndex;
+			}
+			var cylinder_number = 0;
 			$('button#calculate').bind('click', function() {
 				var data = {
 					name: $('input[name="name"]').val(),
 					pills: $('input[name="pills"]').val(),
 					hours: $('input[name="hours"]').val(),
-					cylinder_number: $('input[name="cylinder_number"]').val()
+					// cylinder_number: $('input[name="cylinder_number"]').val()
+					cylinder_number: getCylinderIndex(),
 				}
 				$.ajax({
 					type: "POST",
@@ -102,7 +109,7 @@
 			</div>
 			<div class="form-group">
 				<label for="cylinder">Cylinder Number: </label>
-				<select class="form-control" name=cylinder_number>
+				<select id="cylinderNum" class="form-control" name=cylinder_number>
                      <option value=1>1</option>
                      <option value=2>2</option>
                      <option value=3>3</option>
