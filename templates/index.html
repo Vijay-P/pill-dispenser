@@ -8,7 +8,11 @@
 
 <body>
 	<script type=text/javascript>
-		var table_headers = "<tr><td>Cylinder Number</td><td>Medication Name</td><td>Dosage per Day</td><td>Hours between Dosage</td><td>Controls</td>";
+
+		var data_table = [];
+		var data_map = {};
+		var table_headers = "<tr><td>Cylinder Number</td><td>Medication Name</td><td>Dosages</td><td>Time of Dosage</td><td>Controls</td>";
+
 		$(function() {
 			$.ajax({
 				type: "GET",
@@ -22,7 +26,7 @@
 					Object.keys(medications["cylinders"]).forEach(function(key) {
 						console.log(key, JSON.stringify(medications["cylinders"][key]));
 						var cylinder = medications["cylinders"][key];
-						var cylinder_number = key;
+						var cylinder_number = parseInt(key) + 1;
 						var name = cylinder['name'];
 						var pills = cylinder['pills'];
 						var hours = cylinder['hours'];
@@ -39,47 +43,95 @@
 			});
 		});
 		$(function() {
+			function getCylinderIndex() {
+			  return $("#cylinderNum")[0].selectedIndex;
+			}
 			$('button#calculate').bind('click', function() {
+				var cylinder_number = getCylinderIndex();
 				var data = {
 					name: $('input[name="name"]').val(),
 					pills: $('input[name="pills"]').val(),
 					hours: $('input[name="hours"]').val(),
-					cylinder_number: $('input[name="cylinder_number"]').val()
+					// cylinder_number: $('input[name="cylinder_number"]').val()
+					cylinder_number: cylinder_number,
 				}
+
+				var pillName = $('input[name="name"]').val();
+				var tmpHours = $('input[name="hours"]').val();
+				var true_hours = parseInt($('input[name="hours"]').val().split(":")[0]);
+				if (tmpHours.substring(tmpHours.length-2, tmpHours.length)) {
+					true_hours += 2;
+				}
+
+				var minZone = tmpHours.split(":")[1];
+				var key = cylinder_number + "+" + tmpHours;
+
+				var newEntry = [true_hours, parseInt(minZone.substring(0, minZone.length-2)), cylinder_number,parseInt($('input[name="pills"]').val()), pillName];
+				data_table.push(newEntry);
+				data_map[key] = newEntry;
+
+				data_table = [];
+
+				var value;
+				Object.keys(data_map).forEach(function(key) {
+				    value = data_map[key];
+						data_table.push(value)
+				});
+
 				$.ajax({
 					type: "POST",
 					url: '/api/v1/medication',
-					data: JSON.stringify(data),
+					// data: JSON.stringify(data),
+					data: JSON.stringify(data_table),
 					contentType: "application/json",
 					dataType: "json",
 					success: function(response) {
-						$.ajax({
-							type: "GET",
-							url: '/api/v1/medications',
-							success: function(medications) {
+						// $.ajax({
+							// type: "GET",
+							// url: '/api/v1/medications',
+							// success: function(medications) {
 								// console.log(medications);
+
 								var table = "<table class='table'>" + table_headers;
 								var table_end = "</table>";
 								var body = "";
-								console.log(Object.keys(medications["cylinders"]));
-								Object.keys(medications["cylinders"]).forEach(function(key) {
-									console.log(key, JSON.stringify(medications["cylinders"][key]));
-									var cylinder = medications["cylinders"][key];
-									var cylinder_number = key;
-									var name = cylinder['name'];
-									var pills = cylinder['pills'];
-									var hours = cylinder['hours'];
-									body += "<tr>" + "<td>" + cylinder_number + "</td>" +
-										"<td>" + name + "</td>" +
-										"<td>" + pills + "</td>" +
-										"<td>" + hours + "</td>" +
-										"<td>" + 'delete' + "</td>" +
-										"</tr>";
+
+								var value;
+								Object.keys(data_map).forEach(function(key) {
+										value = data_map[key];
+
+										var cylinder_number = parseInt(key.split("+")[0]) + 1;
+										var dosageTime = key.split("+")[1];
+										var name = value[4];
+										var pills = value[3];
+
+										body += "<tr>" + "<td>" + cylinder_number + "</td>" +
+											"<td>" + name + "</td>" +
+											"<td>" + pills + "</td>" +
+											"<td>" + dosageTime + "</td>" +
+											"<td>" + 'delete' + "</td>" +
+											"</tr>";
 								});
 
+								// console.log(Object.keys(medications["cylinders"]));
+								// Object.keys(medications["cylinders"]).forEach(function(key) {
+								// 	console.log(key, JSON.stringify(medications["cylinders"][key]));
+								// 	var cylinder = medications["cylinders"][key];
+								// 	var cylinder_number = parseInt(key) + 1;
+								// 	var name = cylinder['name'];
+								// 	var pills = cylinder['pills'];
+								// 	var hours = cylinder['hours'];
+								// 	body += "<tr>" + "<td>" + cylinder_number + "</td>" +
+								// 		"<td>" + name + "</td>" +
+								// 		"<td>" + pills + "</td>" +
+								// 		"<td>" + hours + "</td>" +
+								// 		"<td>" + 'delete' + "</td>" +
+								// 		"</tr>";
+								// });
+
 								$("#result").html(table + body + table_end);
-							}
-						});
+							// }
+						// });
 					}
 				});
 			});
@@ -98,11 +150,11 @@
 			</div>
 			<div class="form-group">
 				<label for="exampleInputEmail1">Hours: </label>
-				<input type="email" class="form-control" name=hours placeholder="Enter Hours">
+				<input class="form-control" type="email" id="timeInputs" name=hours>
 			</div>
 			<div class="form-group">
 				<label for="cylinder">Cylinder Number: </label>
-				<select class="form-control">
+				<select id="cylinderNum" class="form-control" name=cylinder_number>
                      <option value=1>1</option>
                      <option value=2>2</option>
                      <option value=3>3</option>
@@ -122,6 +174,11 @@
 	<script src="https://bootswatch.com/_vendor/popper.js/dist/umd/popper.min.js"></script>
 	<script src="https://bootswatch.com/_vendor/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script src="https://bootswatch.com/_assets/js/custom.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/timepicker@1.11.12/jquery.timepicker.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/timepicker@1.11.12/jquery.timepicker.min.css">
+	<script>
+		$('#timeInputs').timepicker();
+	</script>
 </body>
 
 </html>

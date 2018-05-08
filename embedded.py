@@ -5,6 +5,8 @@ import time
 import sched
 from datetime import datetime
 
+from multiprocessing import Process, Queue
+
 # External pakages
 from nanpy import SerialManager, ArduinoApi, Servo
 
@@ -219,6 +221,7 @@ def reloadJobs():
 
 
 def mainthread(inqueue):
+    print('threadstart')
     global JOBS
     # pinmode(A)
     # init(A, SERVO)
@@ -229,11 +232,13 @@ def mainthread(inqueue):
     SCHED.enter(diff, 1, reloadJobs, ())
     while 1:
         try:
-            if inqueue.qsize() != 0:
+            if not inqueue.empty():
                 SCHED.run(False)
                 newjobs = inqueue.get()
+                print('newjobs')
+                print(newjobs)
                 assert isinstance(newjobs, tuple)
-                # assert len(newjobs) == 6
+                # assert len(newjobs) >= 6
                 JOBS = []
                 for job in newjobs:
                     assert len(job) == 4
