@@ -3,6 +3,7 @@
 # Native packages
 import time
 import sched
+import math
 from datetime import datetime
 
 from multiprocessing import Process, Queue
@@ -85,7 +86,7 @@ def navigate(a, cylinder):
     reset_home(a)
     time.sleep(SLEEP_TIME)
     for _ in range(cylinder):
-        translate(a, True, 200 / 6)
+        translate(a, True, math.floor(200 / 6))
     if cylinder in [2, 3]:
         translate(a, True, 2)
     if cylinder in [0, 1, 4]:
@@ -138,7 +139,7 @@ def home(a):
 
 
 def reset_home(a):
-    translate(a, False, 200 / 6)
+    translate(a, False, math.floor(200 / 6))
     while 1:
         translate(a, False, 1)
         if home(a):
@@ -157,7 +158,7 @@ def reload(a, cylinder):
     toggle(a)
     reset_home(a)
     for _ in range(cylinder):
-        translate(a, False, 200 / 6)
+        translate(a, False, math.floor(200 / 6))
         translate(a, False, 7)
     toggle(a)
 
