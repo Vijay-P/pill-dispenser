@@ -218,6 +218,7 @@ def reloadJobs():
 
 
 def mainthread(inqueue):
+    print('threadstart')
     global JOBS
     # pinmode(A)
     # init(A, SERVO)
@@ -231,8 +232,10 @@ def mainthread(inqueue):
             if not inqueue.empty():
                 SCHED.run(False)
                 newjobs = inqueue.get()
+                print('newjobs')
+                print(newjobs)
                 assert isinstance(newjobs, tuple)
-                assert len(newjobs) >= 6
+                # assert len(newjobs) >= 6
                 JOBS = []
                 for job in newjobs:
                     assert len(job) == 4

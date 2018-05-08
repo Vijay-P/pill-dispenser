@@ -31,6 +31,8 @@ if __name__ == '__main__':
     time.sleep( 5 )
     print ("End : %s" % time.ctime())
 
+    # key should be cylinder + time
+
     updatetuple = (
         (
             (16, 4, 0, 0),
