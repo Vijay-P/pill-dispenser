@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Native packages
 import time
@@ -12,10 +12,11 @@ from nanpy import SerialManager, ArduinoApi, Servo
 FULL_ROTATION = 200
 STEP_DELAY = 0.001
 GATE_OPEN = 132
-GATE_CLOSED = 149
+GATE_CLOSED = 150
 PILL_DETECT = 30
-SHAKE_DEL = 0.02
+SHAKE_DEL = 0.01
 SLEEP_TIME = 0.05
+SHAKE_DIST = 2
 
 # ARDUINO PINS
 # PINS 0, 1 and 11 broken
@@ -33,9 +34,9 @@ PINS = {
     'gate': 13
 }
 
-# CONNECTION = SerialManager(device='/dev/ttyUSB0')
-# A = ArduinoApi(connection=CONNECTION)
-# SERVO = Servo(PINS['gate'])
+CONNECTION = SerialManager(device='/dev/ttyUSB0')
+A = ArduinoApi(connection=CONNECTION)
+SERVO = Servo(PINS['gate'])
 JOBS = []
 SCHED = sched.scheduler(time.time, time.sleep)
 
@@ -64,11 +65,10 @@ def translate(a, ccw, steps):
 
 def shake(a, iterations):
     for _ in range(iterations):
-        translate(a, True, 1)
+        translate(a, True, SHAKE_DIST)
         time.sleep(SHAKE_DEL)
-        translate(a, False, 1)
+        translate(a, False, SHAKE_DIST)
         time.sleep(SHAKE_DEL)
-    # translate(a, True, 2)
 
 
 def close_gate(servo):
@@ -84,12 +84,14 @@ def navigate(a, cylinder):
     time.sleep(SLEEP_TIME)
     for _ in range(cylinder):
         translate(a, True, 200 / 6)
-    if cylinder in [2, 6]:
+    if cylinder in [2, 3]:
         translate(a, True, 2)
-    if cylinder in [1, 3, 4]:
+    if cylinder in [0, 1, 4]:
         translate(a, True, 1)
     if cylinder in [5]:
         translate(a, True, 4)
+    # if cylinder in [3]:
+    #     translate(a, False, 1)
     time.sleep(SLEEP_TIME)
 
 
@@ -100,6 +102,7 @@ def dispense(a, servo, cylinder):
         open_gate(servo)
         time.sleep(SLEEP_TIME)
         shake(a, 6)
+        time.sleep(0.5)
         close_gate(servo)
         stime = time.time()
         a.digitalWrite(PINS['dispense'], a.HIGH)
@@ -230,7 +233,7 @@ def mainthread(inqueue):
                 SCHED.run(False)
                 newjobs = inqueue.get()
                 assert isinstance(newjobs, tuple)
-                assert len(newjobs) == 6
+                # assert len(newjobs) == 6
                 JOBS = []
                 for job in newjobs:
                     assert len(job) == 4
@@ -249,15 +252,15 @@ if __name__ == '__main__':
     # CONNECTION = SerialManager(device='/dev/ttyUSB0')
     # A = ArduinoApi(connection=CONNECTION)
     # SERVO = Servo(PINS['gate'])
-    # pinmode(A)
-    # init(A, SERVO)
+    pinmode(A)
+    init(A, SERVO)
+    # open_gate(SERVO)
     # toggle(A)
-    # reset_home(A)
-    # shake(A, 5)
+    # for x in range(6):
+    #     navigate(A, x)
+    #     time.sleep(3)
     # toggle(A)
-    # shake(A, 6)
-    # toggle(A)
-    # dispense(A, SERVO, 0)
+    dispense(A, SERVO, 0)
     # inputq = Queue()
     # p = Process(target=mainthread, args=(inputq))
     # p.start()
