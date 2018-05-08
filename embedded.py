@@ -198,8 +198,8 @@ def create_job(a, servo, hour, minute, cylinder, number):
     diff = time.mktime(medtime.timetuple()) - time.time()
     if(diff > 0):
         print("Job in ", diff)
-        # SCHED.enter(diff, 1, dispense, (a, servo, cylinder, number))
-        SCHED.enter(diff, 1, printest, (a, servo, cylinder, number))
+        SCHED.enter(diff, 1, dispense, (a, servo, cylinder, number))
+        # SCHED.enter(diff, 1, printest, (a, servo, cylinder, number))
     # else:
     #     try:
     #         medtime2 = medtime.replace(day=medtime.day + 1)
@@ -223,8 +223,8 @@ def reloadJobs():
 def mainthread(inqueue):
     print('threadstart')
     global JOBS
-    # pinmode(A)
-    # init(A, SERVO)
+    pinmode(A)
+    init(A, SERVO)
     # reloadjobs at midnight
     currtime = datetime.now()
     reloadtime = currtime.replace(day=currtime.day + 1, hour=0, minute=0, second=0)
@@ -244,7 +244,7 @@ def mainthread(inqueue):
                     assert len(job) == 4
                     #hour, minute, cylinder, number
                     JOBS.append(job)
-                    create_job("A", "SERVO", *job)
+                    create_job(A, SERVO, *job)
             else:
                 SCHED.run(False)
         except AssertionError:
@@ -257,15 +257,15 @@ if __name__ == '__main__':
     # CONNECTION = SerialManager(device='/dev/ttyUSB0')
     # A = ArduinoApi(connection=CONNECTION)
     # SERVO = Servo(PINS['gate'])
-    pinmode(A)
-    init(A, SERVO)
+    # pinmode(A)
+    # init(A, SERVO)
     # open_gate(SERVO)
     # toggle(A)
     # for x in range(6):
     #     navigate(A, x)
     #     time.sleep(3)
     # toggle(A)
-    dispense(A, SERVO, 0)
+    # dispense(A, SERVO, 0)
     # inputq = Queue()
     # p = Process(target=mainthread, args=(inputq))
     # p.start()
