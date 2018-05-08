@@ -1,9 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Native packages
 import time
 import sched
 from datetime import datetime
+
+from multiprocessing import Process, Queue
 
 # External pakages
 from nanpy import SerialManager, ArduinoApi, Servo
@@ -226,7 +228,7 @@ def mainthread(inqueue):
     SCHED.enter(diff, 1, reloadJobs, ())
     while 1:
         try:
-            if inqueue.qsize() != 0:
+            if not inqueue.empty():
                 SCHED.run(False)
                 newjobs = inqueue.get()
                 assert isinstance(newjobs, tuple)
