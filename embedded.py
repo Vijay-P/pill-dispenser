@@ -37,9 +37,6 @@ PINS = {
     'gate': 13
 }
 
-CONNECTION = SerialManager(device='/dev/ttyUSB0')
-A = ArduinoApi(connection=CONNECTION)
-SERVO = Servo(PINS['gate'])
 JOBS = []
 SCHED = sched.scheduler(time.time, time.sleep)
 
@@ -75,10 +72,12 @@ def shake(a, iterations):
 
 
 def close_gate(servo):
+    time.sleep(SLEEP_TIME)
     servo.write(GATE_CLOSED)
 
 
 def open_gate(servo):
+    time.sleep(SLEEP_TIME)
     servo.write(GATE_OPEN)
 
 
@@ -199,9 +198,10 @@ def create_job(a, servo, hour, minute, cylinder, number):
     currtime = datetime.now()
     medtime = currtime.replace(hour=hour, minute=minute, second=0)
     diff = time.mktime(medtime.timetuple()) - time.time()
+    print(time.mktime(medtime.timetuple()), time.time())
     if(diff > 0):
         print("Job in ", diff)
-        SCHED.enter(diff, 1, dispense, (a, servo, cylinder, number))
+        SCHED.enter(diff, 1, dispense, (a, servo, cylinder))
         # SCHED.enter(diff, 1, printest, (a, servo, cylinder, number))
     # else:
     #     try:
@@ -226,6 +226,9 @@ def reloadJobs():
 def mainthread(inqueue):
     print('threadstart')
     global JOBS
+    CONNECTION = SerialManager(device='/dev/ttyUSB0')
+    A = ArduinoApi(connection=CONNECTION)
+    SERVO = Servo(PINS['gate'])
     pinmode(A)
     init(A, SERVO)
     # reloadjobs at midnight
@@ -247,15 +250,15 @@ def mainthread(inqueue):
                     assert len(job) == 4
                     #hour, minute, cylinder, number
                     JOBS.append(job)
-                    create_job(A, SERVO, *job)
+                    create_job(A, SERVO, job[0], job[1], job[2], job[3])
             else:
                 SCHED.run(False)
         except AssertionError:
             break
     A.digitalWrite(PINS['sleep'], A.LOW)
 
-if __name__ == '__main__':
-    pass
+# if __name__ == '__main__':
+    # pass
     # Nanpy Setup
     # CONNECTION = SerialManager(device='/dev/ttyUSB0')
     # A = ArduinoApi(connection=CONNECTION)
