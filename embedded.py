@@ -16,8 +16,8 @@ FULL_ROTATION = 200
 STEP_DELAY = 0.001
 GATE_OPEN = 132
 GATE_CLOSED = 150
-PILL_DETECT = 30
-SHAKE_DEL = 0.01
+PILL_DETECT = 27
+SHAKE_DEL = 0.01 * 2
 SLEEP_TIME = 0.05
 SHAKE_DIST = 2
 
@@ -68,9 +68,9 @@ def translate(a, ccw, steps):
 
 def shake(a, iterations):
     for _ in range(iterations):
-        translate(a, True, SHAKE_DIST)
-        time.sleep(SHAKE_DEL)
         translate(a, False, SHAKE_DIST)
+        time.sleep(SHAKE_DEL)
+        translate(a, True, SHAKE_DIST)
         time.sleep(SHAKE_DEL)
 
 
@@ -267,11 +267,12 @@ if __name__ == '__main__':
     init(A, SERVO)
     # open_gate(SERVO)
     # toggle(A)
+    # translate(A, True, 30)
     # for x in range(6):
     #     navigate(A, x)
     #     time.sleep(3)
     # toggle(A)
-    dispense(A, SERVO, 0)
+    dispense(A, SERVO, 1)
     # inputq = Queue()
     # p = Process(target=mainthread, args=(inputq))
     # p.start()
