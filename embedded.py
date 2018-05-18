@@ -17,9 +17,9 @@ STEP_DELAY = 0.001
 GATE_OPEN = 132
 GATE_CLOSED = 150
 PILL_DETECT = 27
-SHAKE_DEL = 0.01 * 2
+SHAKE_DEL = 0.01  # * 2
 SLEEP_TIME = 0.05
-SHAKE_DIST = 2
+SHAKE_DIST = 1  # 2
 
 # ARDUINO PINS
 # PINS 0, 1 and 11 broken
@@ -34,7 +34,7 @@ PINS = {
     'ms1': 9,
     'ms2': 10,
     'ms3': 12,
-    'gate': 13
+    'gate': 11
 }
 
 CONNECTION = SerialManager(device='/dev/ttyUSB0')
@@ -52,6 +52,7 @@ def toggle(a):
     elif a.digitalRead(PINS['sleep']) == a.LOW:
         print("Awake")
         a.digitalWrite(PINS['sleep'], a.HIGH)
+    print("STATE TOGGLE")
 
 
 def translate(a, ccw, steps):
@@ -100,13 +101,13 @@ def navigate(a, cylinder):
     time.sleep(SLEEP_TIME)
 
 
-def dispense(a, servo, cylinder):
+def dispense(a, servo, cylinder, number):
     try:
         toggle(a)
         navigate(a, cylinder)
         open_gate(servo)
         time.sleep(SLEEP_TIME)
-        shake(a, 6)
+        shake(a, 9)
         time.sleep(0.5)
         close_gate(servo)
         stime = time.time()
@@ -114,7 +115,7 @@ def dispense(a, servo, cylinder):
         print("DISPENSING")
         photocell_reading = sum([a.analogRead(PINS['photocell']) for _ in range(3)]) / 3
         new_reading = photocell_reading
-        numshakes = 6
+        numshakes = 9
         while abs(photocell_reading - new_reading) < PILL_DETECT:
             if abs(time.time() - stime) > 3:
                 a.digitalWrite(PINS['dispense'], a.LOW)
@@ -128,7 +129,7 @@ def dispense(a, servo, cylinder):
                 stime = time.time()
             new_reading = a.analogRead(PINS['photocell'])
         time.sleep(SLEEP_TIME)
-        translate(A, True, 10)
+        # translate(A, True, 10)
     except Exception as exc:
         print("ERROR", exc)
     finally:
@@ -146,7 +147,7 @@ def reset_home(a):
         translate(a, False, 1)
         if home(a):
             time.sleep(0.25)  # .25
-            translate(a, True, 3)
+            translate(a, False, 1)
             time.sleep(0.1)
             print("home")
             break
@@ -258,21 +259,7 @@ def mainthread(inqueue):
     A.digitalWrite(PINS['sleep'], A.LOW)
 
 if __name__ == '__main__':
-    # pass
     # Nanpy Setup
-    # CONNECTION = SerialManager(device='/dev/ttyUSB0')
-    # A = ArduinoApi(connection=CONNECTION)
-    # SERVO = Servo(PINS['gate'])
     pinmode(A)
     init(A, SERVO)
-    # open_gate(SERVO)
-    # toggle(A)
-    # translate(A, True, 30)
-    # for x in range(6):
-    #     navigate(A, x)
-    #     time.sleep(3)
-    # toggle(A)
-    dispense(A, SERVO, 1)
-    # inputq = Queue()
-    # p = Process(target=mainthread, args=(inputq))
-    # p.start()
+    dispense(A, SERVO, 1, 1)
