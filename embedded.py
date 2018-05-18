@@ -5,6 +5,7 @@ import time
 import sched
 import math
 from datetime import datetime
+import math
 
 from multiprocessing import Process, Queue
 
@@ -15,7 +16,7 @@ from nanpy import SerialManager, ArduinoApi, Servo
 FULL_ROTATION = 200
 STEP_DELAY = 0.001
 GATE_OPEN = 132
-GATE_CLOSED = 150
+GATE_CLOSED = 152
 PILL_DETECT = 27
 SHAKE_DEL = 0.01  # * 2
 SLEEP_TIME = 0.05
@@ -89,7 +90,7 @@ def navigate(a, cylinder):
     reset_home(a)
     time.sleep(SLEEP_TIME)
     for _ in range(cylinder):
-        translate(a, True, math.floor(200 / 6))
+        translate(a, True, math.floor(FULL_ROTATION / 6))
     if cylinder in [2, 3]:
         translate(a, True, 2)
     if cylinder in [0, 1, 4]:
@@ -129,7 +130,7 @@ def dispense(a, servo, cylinder, number):
                 stime = time.time()
             new_reading = a.analogRead(PINS['photocell'])
         time.sleep(SLEEP_TIME)
-        # translate(A, True, 10)
+        translate(A, True, 10)
     except Exception as exc:
         print("ERROR", exc)
     finally:
@@ -142,7 +143,7 @@ def home(a):
 
 
 def reset_home(a):
-    translate(a, False, math.floor(200 / 6))
+    translate(a, False, math.floor(FULL_ROTATION / 6))
     while 1:
         translate(a, False, 1)
         if home(a):
@@ -159,10 +160,8 @@ def reload(a, cylinder):
     else:
         cylinder %= 3
     toggle(a)
-    reset_home(a)
-    for _ in range(cylinder):
-        translate(a, False, math.floor(200 / 6))
-        translate(a, False, 7)
+    navigate(a, cylinder)
+    translate(a, True, math.floor((FULL_ROTATION / 6) / 2))
     toggle(a)
 
 
@@ -262,4 +261,4 @@ if __name__ == '__main__':
     # Nanpy Setup
     pinmode(A)
     init(A, SERVO)
-    dispense(A, SERVO, 1, 1)
+    # dispense(A, SERVO, 1, 1)
